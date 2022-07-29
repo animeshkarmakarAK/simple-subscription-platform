@@ -5,15 +5,26 @@ namespace App\Http\Controllers;
 use App\Events\PostCreateEvent;
 use App\Models\Post;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class PostController extends Controller
 {
+    protected function failedValidation(Validator $validator)
+    {
+        if ($validator->errors()) {
+            throw new HttpResponseException(response()->json($validator->errors(), 422));
+        }
+
+        return $validator;
+    }
+
     public function validator(Request $request): Validator
     {
         $data = $request->all();
@@ -32,16 +43,16 @@ class PostController extends Controller
      *
      * @param Request $request
      * @return JsonResponse
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function store(Request $request): JsonResponse
     {
-        $validatedData = $this->validator($request)->validate();
+        $validatedData  = $this->validator($request)->validate();
 
         try {
             $post = Post::create($validatedData);
             event(new PostCreateEvent($post->website_id, $post->title, $post->body));
-        }catch(\Exception $exception) {
+        } catch (\Throwable $exception) {
             Log::debug($exception->getMessage());
 
             return response()->json(['message' => 'problem to create post'], 500);
@@ -67,7 +78,7 @@ class PostController extends Controller
      * @param Request $request
      * @param \App\Models\Post $post
      * @return JsonResponse
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function update(Request $request, Post $post): JsonResponse
     {

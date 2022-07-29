@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\PostCreateEvent;
 use App\Models\Post;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -44,7 +45,8 @@ class PostController extends Controller
         ]);
 
         try {
-            Post::create($validatedData);
+            $post = Post::create($validatedData);
+            event(new PostCreateEvent($post->website_id, $post->title, $post->body));
         }catch(\Exception $exception) {
             Log::debug($exception->getMessage());
 

@@ -4,45 +4,39 @@ namespace App\Http\Controllers;
 
 use App\Events\PostCreateEvent;
 use App\Models\Post;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Response;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class PostController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    public function validator(Request $request): Validator
     {
-        //
+        $data = $request->all();
+        $rules = [
+            'title' => 'required|max:255',
+            'body' => 'required',
+            'website_id' => 'required|int|exists:websites,id',
+        ];
+
+        return \Illuminate\Support\Facades\Validator::make($data, $rules);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param Request $request
      * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request): JsonResponse
     {
-        $validatedData = $request->validate([
-            'title' => 'required|max:255',
-            'body' => 'required',
-            'website_id' => 'required|int|exists:websites,id',
-        ]);
+        $validatedData = $this->validator($request)->validate();
 
         try {
             $post = Post::create($validatedData);
@@ -53,51 +47,45 @@ class PostController extends Controller
             return response()->json(['message' => 'problem to create post'], 500);
         }
 
-        return response()->json(['message' => 'post created successfully'], 201);
+        $response = [
+            '_response_status' => [
+                "data" => $post,
+                "success" => true,
+                "code" => ResponseAlias::HTTP_CREATED,
+                "message" => "post created successfully!",
+                "query_time" => Carbon::now(),
+            ]
+        ];
+
+        return response()->json($response, ResponseAlias::HTTP_CREATED);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Post  $post
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Post $post)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Post  $post
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Post $post)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
      *
      * @param Request $request
-     * @param  \App\Models\Post  $post
-     * @return \Illuminate\Http\Response
+     * @param \App\Models\Post $post
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
-    public function update(Request $request, Post $post)
+    public function update(Request $request, Post $post): JsonResponse
     {
-        //
+        $validatedData = $this->validator($request)->validate();
+        $post->fill($validatedData);
+        $post->save();
+        $response = [
+            '_response_status' => [
+                "data" => $post,
+                "success" => true,
+                "code" => ResponseAlias::HTTP_OK,
+                "message" => "Post successfully updated",
+                "query_time" => Carbon::now(),
+            ]
+        ];
+
+        return Response::json($response, ResponseAlias::HTTP_CREATED);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Post  $post
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Post $post)
-    {
-        //
-    }
+
 }

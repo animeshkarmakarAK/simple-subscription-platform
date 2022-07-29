@@ -16,6 +16,12 @@ use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 class WebsiteController extends Controller
 {
 
+    /**
+     * subscribe a user for a particular website
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function userSubscription(Request $request): JsonResponse
     {
         $userId = $request->input('user_id');
@@ -98,28 +104,6 @@ class WebsiteController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param \App\Models\Website $website
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Website $website)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param \App\Models\Website $website
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Website $website)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param Request $request
@@ -145,14 +129,4 @@ class WebsiteController extends Controller
         return Response::json($response, ResponseAlias::HTTP_CREATED);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param \App\Models\Website $website
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Website $website)
-    {
-        //
-    }
 }

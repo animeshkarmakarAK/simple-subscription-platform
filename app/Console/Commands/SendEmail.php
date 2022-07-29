@@ -33,9 +33,10 @@ class SendEmail extends Command
         $body = $this->ask('post body?');
         $receiver = $this->ask('receiver email?');
 
-        Mail::to($receiver)->send(New PostMail($title, $body));
+        Mail::to($receiver)->queue(New PostMail($title, $body));
 
         $this->info('The email are send successfully!');
+
         return 0;
     }
 }

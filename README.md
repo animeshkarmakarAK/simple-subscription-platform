@@ -1,3 +1,12 @@
+##instructions to run this app 
+1. composer install 
+2. php artisan db:seed // to run user factory
+3. set up your mail config in .env file
+4. add below line in your .env file
+   MAIL_SENDMAIL_PATH='/usr/sbin/sendmail -t -i'
+   MAIL_DRIVER=sendmail
+
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
 
 <p align="center">

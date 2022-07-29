@@ -1,4 +1,4 @@
-##instructions to run this app 
+## instructions to run this app 
 1. composer install 
 2. php artisan migrate
 3. php artisan db:seed // to run user factory
